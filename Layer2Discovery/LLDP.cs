@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.XPath;
@@ -66,7 +67,6 @@ public static class LLDP
         return result;
     }
 
-
     internal static string ProcessLLDPValue(LLDP.TLVType type, byte[] data)
     {
         string result = type switch
@@ -102,64 +102,34 @@ public static class LLDP
         return ip.ToString();
     }
 
+    // "((PortIdTlv)tlv).SubTypeValue" returns a byte array (in case of InterfaceName), or a PhysicalAddress, or a NetworkAddress
+    // We need to ensure we handle all cases and return a properly formatted string
+    internal static string ProcessPortIdTlv(object data) =>
+        data switch
+        {
+            byte[] byteArray => Encoding.UTF8.GetString(byteArray),
+            PhysicalAddress mac => mac.ToString(),
+            NetworkAddress ip => ip.ToString(),
+            _ => $"Unknown {data}"
+        };
+
     internal static void ProcessLldpPacket(EthernetPacket parsedPacket, RawCapture rawPacket)
     {
-
         foreach (Tlv tlv in ((LldpPacket)parsedPacket.PayloadPacket).TlvCollection)
         {
             //Console.WriteLine($"{tlv.Type}");
             switch (tlv.Type)
             {
-                case TlvType.ChassisId: {Console.WriteLine($"{tlv.Type} => {((ChassisIdTlv)tlv).SubType}: {String.Join(", ",((ChassisIdTlv)tlv).SubTypeValue)}"); break; }
-                case TlvType.PortId: {Console.WriteLine($"{tlv.Type} => {((PortIdTlv)tlv).SubType}: {Encoding.UTF8.GetString((byte[])((PortIdTlv)tlv).SubTypeValue)}"); break; }
-                case TlvType.SystemName: {Console.WriteLine($"{tlv.Type} => {((SystemNameTlv)tlv).Value}"); break; }
-                case TlvType.SystemDescription: {Console.WriteLine($"{tlv.Type} => {((SystemDescriptionTlv)tlv).Value}"); break; }
-                case TlvType.PortDescription: {Console.WriteLine($"{tlv.Type} => {((PortDescriptionTlv)tlv).Value}"); break; }
-                case TlvType.SystemCapabilities: {Console.WriteLine($"{tlv.Type} => Capabilities: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Capabilities}, Enabled: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Enabled}"); break; }
-                case TlvType.ManagementAddress: {Console.WriteLine($"{tlv.Type} => {String.Join(", ", ((ManagementAddressTlv)tlv).Address)}"); break; }
-                case TlvType.OrganizationSpecific: {Console.WriteLine($"{tlv.Type} => {OrgIdToString(Convert.ToHexString(((OrganizationSpecificTlv)tlv).OrganizationUniqueID))}: {SubtypeToString(((OrganizationSpecificTlv)tlv).OrganizationDefinedSubType)}: {Encoding.UTF8.GetString(((OrganizationSpecificTlv)tlv).OrganizationDefinedInfoString)}"); break; }
+                case TlvType.ChassisId: { Console.WriteLine($"{tlv.Type} => {((ChassisIdTlv)tlv).SubType}: {String.Join(", ", ((ChassisIdTlv)tlv).SubTypeValue)}"); break; }
+                case TlvType.PortId: { Console.WriteLine($"{tlv.Type} => {((PortIdTlv)tlv).SubType}: {ProcessPortIdTlv(((PortIdTlv)tlv).SubTypeValue)}"); break; }
+                case TlvType.SystemName: { Console.WriteLine($"{tlv.Type} => {((SystemNameTlv)tlv).Value}"); break; }
+                case TlvType.SystemDescription: { Console.WriteLine($"{tlv.Type} => {((SystemDescriptionTlv)tlv).Value}"); break; }
+                case TlvType.PortDescription: { Console.WriteLine($"{tlv.Type} => {((PortDescriptionTlv)tlv).Value}"); break; }
+                case TlvType.SystemCapabilities: { Console.WriteLine($"{tlv.Type} => Capabilities: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Capabilities}, Enabled: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Enabled}"); break; }
+                case TlvType.ManagementAddress: { Console.WriteLine($"{tlv.Type} => {String.Join(", ", ((ManagementAddressTlv)tlv).Address)}"); break; }
+                case TlvType.OrganizationSpecific: { Console.WriteLine($"{tlv.Type} => {OrgIdToString(Convert.ToHexString(((OrganizationSpecificTlv)tlv).OrganizationUniqueID))}: {SubtypeToString(((OrganizationSpecificTlv)tlv).OrganizationDefinedSubType)}: {Encoding.UTF8.GetString(((OrganizationSpecificTlv)tlv).OrganizationDefinedInfoString)}"); break; }
             }
         }
-
-        //var len = rawPacket.Data.Length;
-
-        // Console.WriteLine($"LLDP Packet rec'd: Len={len}, {rawPacket.LinkLayerType}");
-        // Console.WriteLine(BitConverter.ToString(rawPacket.Data));
-        // Console.WriteLine("----------------------------");
-        // Console.WriteLine($"Dest MAC: {parsedPacket.DestinationHardwareAddress}, HeaderSize: {parsedPacket.HeaderData.Length}");
-        // //Console.WriteLine($"Patload length: {parsedPacket.PayloadData.Length}");
-
-        // int PAYLOAD_LENGTH = parsedPacket.PayloadData.Length;
-        // int ETHERNET_LENGTH = parsedPacket.HeaderData.Length;
-        // int LLDP_SUBTYPE = 1;
-        // int LLDP_TYPE = 2;
-        // int LLDP_LENGTH = 2;
-        // int CURRENT_LEN = 0;
-
-        // while (PAYLOAD_LENGTH > (CURRENT_LEN ))
-        // {
-        //     Console.WriteLine("1");
-        //     byte[] tlvType = rawPacket.Data.Skip(ETHERNET_LENGTH + LLDP_SUBTYPE + CURRENT_LEN).Take(LLDP_TYPE).ToArray();
-        //     int tlvTypeInt = Utils.ProcessByteArrayToInt(tlvType);
-        //     var tlvTypeString = (LLDP.TLVType)tlvTypeInt;
-        //     Console.WriteLine("2");
-        //     byte[] tlvLengthArr = rawPacket.Data.Skip(ETHERNET_LENGTH + LLDP_SUBTYPE + LLDP_TYPE + CURRENT_LEN).Take(LLDP_LENGTH).ToArray();
-        //     //if (BitConverter.IsLittleEndian) { Array.Reverse(tlvLengthArr); }
-        //     //var tlvLength = BitConverter.ToInt16(tlvLengthArr, 0);
-        //     var tlvLength = Utils.ProcessByteArrayToInt(tlvLengthArr);
-        //     Console.WriteLine("3");
-        //     string value = LLDP.ProcessLLDPValue((LLDP.TLVType)tlvTypeInt, rawPacket.Data.Skip(ETHERNET_LENGTH + LLDP_SUBTYPE + LLDP_TYPE + LLDP_LENGTH + CURRENT_LEN).Take(tlvLength - (LLDP_LENGTH + LLDP_TYPE)).ToArray());
-        //     Console.WriteLine("4");
-        //     Console.WriteLine($"{tlvTypeString}: {value}");
-
-        //     CURRENT_LEN = CURRENT_LEN + tlvLength;
-
-        //     //var newArr = rawPacket.Data.Skip(ETHERNET_LENGTH + LOGICAL_LINK_CONTROL_LENGTH + LLDP_VERSION + LLDP_TTL + LLDP_CHECKSUM + 2 + 2).Take(22).ToArray();
-        //     //Console.WriteLine(BitConverter.ToString(newArr));
-        //     //Console.WriteLine(Encoding.UTF8.GetString(newArr));
-        //     //Console.WriteLine($"PAYLOAD_LENGTH: {PAYLOAD_LENGTH}, CURRENT_LEN: {CURRENT_LEN + LLDP_VERSION + LLDP_TTL + LLDP_CHECKSUM + LOGICAL_LINK_CONTROL_LENGTH}");
-        // }
-
         Console.WriteLine("===================================================================================================");
     }
 
