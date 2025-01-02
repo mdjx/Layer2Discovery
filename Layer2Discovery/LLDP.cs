@@ -127,7 +127,7 @@ public static class LLDP
                 case TlvType.PortDescription: { Console.WriteLine($"{tlv.Type} => {((PortDescriptionTlv)tlv).Value}"); break; }
                 case TlvType.SystemCapabilities: { Console.WriteLine($"{tlv.Type} => Capabilities: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Capabilities}, Enabled: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Enabled}"); break; }
                 case TlvType.ManagementAddress: { Console.WriteLine($"{tlv.Type} => {String.Join(", ", ((ManagementAddressTlv)tlv).Address)}"); break; }
-                case TlvType.OrganizationSpecific: { Console.WriteLine($"{tlv.Type} => {OrgIdToString(Convert.ToHexString(((OrganizationSpecificTlv)tlv).OrganizationUniqueID))}: {SubtypeToString(((OrganizationSpecificTlv)tlv).OrganizationDefinedSubType)}: {Encoding.UTF8.GetString(((OrganizationSpecificTlv)tlv).OrganizationDefinedInfoString)}"); break; }
+                case TlvType.OrganizationSpecific: { Console.WriteLine($"{OrgIdToString(Convert.ToHexString(((OrganizationSpecificTlv)tlv).OrganizationUniqueID))}: {SubtypeToString(((OrganizationSpecificTlv)tlv).OrganizationDefinedSubType)}: {Encoding.UTF8.GetString(((OrganizationSpecificTlv)tlv).OrganizationDefinedInfoString)}"); break; }
             }
         }
         Console.WriteLine("===================================================================================================");
