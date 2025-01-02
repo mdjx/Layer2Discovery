@@ -51,7 +51,7 @@ namespace Layer2Discovery
             device.Open(mode: DeviceModes.Promiscuous | DeviceModes.DataTransferUdp | DeviceModes.NoCaptureLocal, read_timeout: readTimeoutMilliseconds);
 
             Console.WriteLine();
-            Console.WriteLine($"-- Listening on {device.Name} {device.Description}, press 'Enter' to stop...");
+            //Console.WriteLine($"-- Listening on {device.Name} {device.Description}, press 'Enter' to stop...");
 
             // Start the capturing process
             device.StartCapture();
@@ -76,7 +76,7 @@ namespace Layer2Discovery
             // CDP
             if (parsedPacket.DestinationHardwareAddress.ToString() == "01000CCCCCCC")
             {
-                //CDP.ProcessCdpPacket(parsedPacket, rawPacket);
+                CDP.ProcessCdpPacket(parsedPacket, rawPacket);
             }
 
             // LLDP
