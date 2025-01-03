@@ -1,8 +1,5 @@
-﻿using System.Net;
-using System.Net.NetworkInformation;
-using System.Security.Cryptography;
+﻿using System.Net.NetworkInformation;
 using System.Text;
-using System.Xml.XPath;
 using PacketDotNet;
 using PacketDotNet.Lldp;
 using SharpPcap;
@@ -77,5 +74,4 @@ public static class LLDP
         }
         Console.WriteLine("===================================================================================================");
     }
-
 }

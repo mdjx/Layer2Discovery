@@ -86,22 +86,13 @@ public static class CDP
             var tlvTypeString = (CDP.TLVType)tlvTypeInt;
 
             byte[] tlvLengthArr = rawPacket.Data.Skip(ETHERNET_LENGTH + LOGICAL_LINK_CONTROL_LENGTH + CDP_VERSION + CDP_TTL + CDP_CHECKSUM + CDP_TYPE + CURRENT_LEN).Take(CDP_LENGTH).ToArray();
-            //if (BitConverter.IsLittleEndian) { Array.Reverse(tlvLengthArr); }
-            //var tlvLength = BitConverter.ToInt16(tlvLengthArr, 0);
             var tlvLength = Utils.ProcessByteArrayToInt(tlvLengthArr);
             string value = CDP.ProcessCDPValue((CDP.TLVType)tlvTypeInt, rawPacket.Data.Skip(ETHERNET_LENGTH + LOGICAL_LINK_CONTROL_LENGTH + CDP_VERSION + CDP_TTL + CDP_CHECKSUM + CDP_TYPE + CDP_LENGTH + CURRENT_LEN).Take(tlvLength - (CDP_LENGTH + CDP_TYPE)).ToArray());
             Console.WriteLine($"{tlvTypeString}: {value}");
 
             CURRENT_LEN = CURRENT_LEN + tlvLength;
-
-            //var newArr = rawPacket.Data.Skip(ETHERNET_LENGTH + LOGICAL_LINK_CONTROL_LENGTH + CDP_VERSION + CDP_TTL + CDP_CHECKSUM + 2 + 2).Take(22).ToArray();
-            //Console.WriteLine(BitConverter.ToString(newArr));
-            //Console.WriteLine(Encoding.UTF8.GetString(newArr));
-            //Console.WriteLine($"PAYLOAD_LENGTH: {PAYLOAD_LENGTH}, CURRENT_LEN: {CURRENT_LEN + CDP_VERSION + CDP_TTL + CDP_CHECKSUM + LOGICAL_LINK_CONTROL_LENGTH}");
         }
 
         Console.WriteLine("===================================================================================================");
     }
-
-
 }
