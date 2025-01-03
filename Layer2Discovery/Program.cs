@@ -76,7 +76,15 @@ namespace Layer2Discovery
             // CDP
             if (parsedPacket.DestinationHardwareAddress.ToString() == "01000CCCCCCC")
             {
-                CDP.ProcessCdpPacket(parsedPacket, rawPacket);
+                // Determine if packet is CDP or something else (DTP/VTP/PAgP/UDLD...) by looking up PID field in LLC frame.
+                // This may break, the +6 here is digging into LLC packet, where the Control field can be 1 or 2 bytes
+                // https://www.geeksforgeeks.org/logical-link-control-llc-protocol-data-unit/
+                // Testing has not yet shown any 2 byte fields, so we're assuming 1 as a standard for now
+                byte[] Pid = rawPacket.Data.Skip(parsedPacket.HeaderData.Length + 6).Take(2).ToArray();
+                // This is slow but does not matter for our use case
+                // https://stackoverflow.com/questions/43289/comparing-two-byte-arrays-in-net
+                if (Pid.SequenceEqual(new byte[] { 0x20, 0x00})) {CDP.ProcessCdpPacket(parsedPacket, rawPacket);}
+                //else {Console.WriteLine($"Rec'd non CDP Packet, PID Value: {Convert.ToHexString(Pid)}");}
             }
 
             // LLDP
