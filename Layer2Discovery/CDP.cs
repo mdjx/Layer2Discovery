@@ -50,12 +50,12 @@ public static class CDP
 
     internal static string ProcessAddresses(byte[] data)
     {
-        int numberOfAddresses = Utils.ProcessByteArrayToInt(data.Take(4).ToArray()); // first 4 bytes return number of addresses
+        //int numberOfAddresses = Utils.ProcessByteArrayToInt(data.Take(4).ToArray()); // first 4 bytes return number of addresses
 
         // Only return first
-        byte[] protocolType = data.Skip(4).Take(1).ToArray();
-        int protocolLength = Utils.ProcessByteArrayToInt(data.Skip(5).Take(1).ToArray());
-        int protocol = Utils.ProcessByteArrayToInt(data.Skip(6).Take(1).ToArray());
+        // byte[] protocolType = data.Skip(4).Take(1).ToArray();
+        // int protocolLength = Utils.ProcessByteArrayToInt(data.Skip(5).Take(1).ToArray());
+        // int protocol = Utils.ProcessByteArrayToInt(data.Skip(6).Take(1).ToArray());
         int addressLength = Utils.ProcessByteArrayToInt(data.Skip(7).Take(2).ToArray());
         byte[] addressArr = data.Skip(9).Take(addressLength).ToArray();
         IPAddress ip = new IPAddress(addressArr);
@@ -64,11 +64,6 @@ public static class CDP
 
     internal static void ProcessCdpPacket(EthernetPacket parsedPacket, RawCapture rawPacket)
     {
-        //Console.WriteLine($"{time.Hour}:{time.Minute}:{time.Second},{time.Millisecond} Len={len}, {rawPacket.LinkLayerType}");
-        //Console.WriteLine(BitConverter.ToString(rawPacket.Data));
-        //Console.WriteLine("----------------------------");
-        //Console.WriteLine($"Dest MAC: {parsedPacket.DestinationHardwareAddress}, HeaderSize: {parsedPacket.HeaderData.Length}");
-
         int PAYLOAD_LENGTH = parsedPacket.PayloadData.Length;
         int ETHERNET_LENGTH = parsedPacket.HeaderData.Length;
         int LOGICAL_LINK_CONTROL_LENGTH = 8;
