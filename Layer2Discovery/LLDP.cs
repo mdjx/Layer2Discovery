@@ -11,26 +11,6 @@ namespace Layer2Discovery;
 
 public static class LLDP
 {
-
-    internal enum TLVType
-    {
-        DeviceId = 0x0001,              // String
-        Addresses = 0x0002,
-        PortId = 0x0003,                // String
-        Capabilities = 0x0004,
-        SoftwareVersion = 0x0005,       // String
-        Platform = 0x0006,              // String
-        IpPrefixes = 0x0007,
-        VtpDomain = 0x0009,             // String?
-        NativeVLAN = 0x000a,
-        Duplex = 0x000b,
-        PowerConsumption = 0x0010,
-        TrustBitmap = 0x0012,
-        UntrustedPortCos = 0x0013,
-        ManagementAddress = 0x0016,
-        Radio2Channel = 0x1009          // String
-    }
-
     internal static string OrgIdToString(string orgId)
     {
         string result = orgId switch
@@ -65,41 +45,6 @@ public static class LLDP
         };
 
         return result;
-    }
-
-    internal static string ProcessLLDPValue(LLDP.TLVType type, byte[] data)
-    {
-        string result = type switch
-        {
-            LLDP.TLVType.DeviceId => Encoding.UTF8.GetString(data),
-            LLDP.TLVType.PortId => Encoding.UTF8.GetString(data),
-            LLDP.TLVType.SoftwareVersion => Encoding.UTF8.GetString(data),
-            LLDP.TLVType.Platform => Encoding.UTF8.GetString(data),
-            LLDP.TLVType.Addresses => ProcessAddresses(data),
-            LLDP.TLVType.ManagementAddress => ProcessAddresses(data),
-            LLDP.TLVType.Radio2Channel => Encoding.UTF8.GetString(data),
-            LLDP.TLVType.NativeVLAN => Utils.ProcessByteArrayToInt(data).ToString(),
-            LLDP.TLVType.PowerConsumption => Utils.ProcessByteArrayToInt(data).ToString() + "mW",
-            LLDP.TLVType.Duplex => Utils.ProcessByteArrayToInt(data) == 1 ? "Full" : "Half",
-            LLDP.TLVType.VtpDomain => Encoding.UTF8.GetString(data),
-            _ => $"Unsupported: ({BitConverter.ToString(data)})"
-        };
-
-        return result.ToString();
-    }
-
-    internal static string ProcessAddresses(byte[] data)
-    {
-        int numberOfAddresses = Utils.ProcessByteArrayToInt(data.Take(4).ToArray()); // first 4 bytes return number of addresses
-
-        // Only return first
-        byte[] protocolType = data.Skip(4).Take(1).ToArray();
-        int protocolLength = Utils.ProcessByteArrayToInt(data.Skip(5).Take(1).ToArray());
-        int protocol = Utils.ProcessByteArrayToInt(data.Skip(6).Take(1).ToArray());
-        int addressLength = Utils.ProcessByteArrayToInt(data.Skip(7).Take(2).ToArray());
-        byte[] addressArr = data.Skip(9).Take(addressLength).ToArray();
-        IPAddress ip = new IPAddress(addressArr);
-        return ip.ToString();
     }
 
     // "((PortIdTlv)tlv).SubTypeValue" returns a byte array (in case of InterfaceName), or a PhysicalAddress, or a NetworkAddress
