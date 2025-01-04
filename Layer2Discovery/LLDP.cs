@@ -62,13 +62,13 @@ public static class LLDP
             //Console.WriteLine($"{tlv.Type}");
             switch (tlv.Type)
             {
-                case TlvType.ChassisId: { Console.WriteLine($"{tlv.Type} => {((ChassisIdTlv)tlv).SubType}: {String.Join(", ", ((ChassisIdTlv)tlv).SubTypeValue)}"); break; }
-                case TlvType.PortId: { Console.WriteLine($"{tlv.Type} => {((PortIdTlv)tlv).SubType}: {ProcessPortIdTlv(((PortIdTlv)tlv).SubTypeValue)}"); break; }
-                case TlvType.SystemName: { Console.WriteLine($"{tlv.Type} => {((SystemNameTlv)tlv).Value}"); break; }
-                case TlvType.SystemDescription: { Console.WriteLine($"{tlv.Type} => {((SystemDescriptionTlv)tlv).Value}"); break; }
-                case TlvType.PortDescription: { Console.WriteLine($"{tlv.Type} => {((PortDescriptionTlv)tlv).Value}"); break; }
-                case TlvType.SystemCapabilities: { Console.WriteLine($"{tlv.Type} => Capabilities: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Capabilities}, Enabled: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Enabled}"); break; }
-                case TlvType.ManagementAddress: { Console.WriteLine($"{tlv.Type} => {String.Join(", ", ((ManagementAddressTlv)tlv).Address)}"); break; }
+                case TlvType.ChassisId: { Console.WriteLine($"{((ChassisIdTlv)tlv).SubType}: {String.Join(", ", ((ChassisIdTlv)tlv).SubTypeValue)}"); break; }
+                case TlvType.PortId: { Console.WriteLine($"{((PortIdTlv)tlv).SubType}: {ProcessPortIdTlv(((PortIdTlv)tlv).SubTypeValue)}"); break; }
+                case TlvType.SystemName: { Console.WriteLine($"{tlv.Type}: {((SystemNameTlv)tlv).Value}"); break; }
+                case TlvType.SystemDescription: { Console.WriteLine($"{tlv.Type}: {((SystemDescriptionTlv)tlv).Value}"); break; }
+                case TlvType.PortDescription: { Console.WriteLine($"{tlv.Type}: {((PortDescriptionTlv)tlv).Value}"); break; }
+                case TlvType.SystemCapabilities: { Console.WriteLine($"{tlv.Type}: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Capabilities}, Enabled: {(CapabilityOptions)((SystemCapabilitiesTlv)tlv).Enabled}"); break; }
+                case TlvType.ManagementAddress: { Console.WriteLine($"{tlv.Type}: {String.Join(", ", ((ManagementAddressTlv)tlv).Address)}"); break; }
                 case TlvType.OrganizationSpecific: { Console.WriteLine($"{OrgIdToString(Convert.ToHexString(((OrganizationSpecificTlv)tlv).OrganizationUniqueID))}: {SubtypeToString(((OrganizationSpecificTlv)tlv).OrganizationDefinedSubType)}: {Encoding.UTF8.GetString(((OrganizationSpecificTlv)tlv).OrganizationDefinedInfoString)}"); break; }
             }
         }
